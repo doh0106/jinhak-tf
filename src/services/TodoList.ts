@@ -1,36 +1,30 @@
 import { ITodo } from '../interfaces/ITodo';
-import { Todo } from '../models/Todo';
+import { ITodoRepository } from '../interfaces/ITodoRepository';
+import { TodoFactory } from '../factories/TodoFactory';  // ✅ TodoFactory import
 
+// SRP: ✅ Todo 비즈니스 로직 처리라는 단일 책임을 가짐
+// OCP: ✅ 의존성 주입을 통해 저장소를 유연하게 교체 가능
 export class TodoList {
-  private todos: ITodo[] = [];
+  constructor(private repository: ITodoRepository) {}
 
   async addTodo(title: string): Promise<ITodo> {
-    const todo = new Todo(title);
-    await this.simulateDelay();
-    this.todos.push(todo);
-    return todo;
+    const todo = TodoFactory.createTodo(title);  // ✅ TodoFactory 사용
+    return await this.repository.add(todo);
   }
 
   async removeTodo(id: string): Promise<void> {
-    await this.simulateDelay();
-    this.todos = this.todos.filter(todo => todo.id !== id);
+    await this.repository.remove(id);
   }
 
   async toggleTodo(id: string): Promise<void> {
-    await this.simulateDelay();
-    const todo = this.todos.find(todo => todo.id === id);
+    const todo = await this.repository.findById(id);
     if (todo) {
       todo.completed = !todo.completed;
+      await this.repository.update(todo);
     }
   }
 
   async getTodos(): Promise<ITodo[]> {
-    await this.simulateDelay();
-    return [...this.todos];
-  }
-
-  // 비동기 작업을 시뮬레이션하기 위한 private 메소드
-  private simulateDelay(): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, 100));
+    return await this.repository.getAll();
   }
 }
