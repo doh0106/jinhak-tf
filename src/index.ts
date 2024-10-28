@@ -10,20 +10,23 @@ class TodoApp {
     this.todoListView = new TodoListView();
   }
 
-  run(): void {
+  async run(): Promise<void> {
     // 예시 사용법
-    const todo1 = this.todoList.addTodo('우유 사기');
-    const todo2 = this.todoList.addTodo('코딩 공부하기');
+    const todo1 = await this.todoList.addTodo('우유 사기');
+    const todo2 = await this.todoList.addTodo('코딩 공부하기');
     
-    this.todoListView.displayTodos(this.todoList.getTodos());
+    const todos = await this.todoList.getTodos();
+    this.todoListView.displayTodos(todos);
     
-    this.todoList.toggleTodo(todo1.id);
-    this.todoListView.displayTodos(this.todoList.getTodos());
+    await this.todoList.toggleTodo(todo1.id);
+    const updatedTodos = await this.todoList.getTodos();
+    this.todoListView.displayTodos(updatedTodos);
     
-    this.todoList.removeTodo(todo2.id);
-    this.todoListView.displayTodos(this.todoList.getTodos());
+    await this.todoList.removeTodo(todo2.id);
+    const finalTodos = await this.todoList.getTodos();
+    this.todoListView.displayTodos(finalTodos);
   }
 }
 
 const app = new TodoApp();
-app.run();
+app.run().catch(console.error);
