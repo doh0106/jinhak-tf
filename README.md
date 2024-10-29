@@ -437,3 +437,31 @@ Todo 리스트 애플리케이션을 TypeScript로 구현해주세요. 다음 �
 각 단계별로 SOLID 원칙을 어떻게 준수했는지 설명해주시고, 
 왜 그러한 설계 결정을 했는지 이유도 함께 설명해주세요.
 ```
+
+```text
+src
+├── config
+│   └── ViewConfigFactory.ts
+├── factories
+│   └── TodoFactory.ts
+├── formatters
+│   └── TodoFormatter.ts
+├── index.ts
+├── interfaces
+│   ├── ITodo.ts
+│   ├── ITodoFormatter.ts
+│   ├── ITodoRepository.ts
+│   ├── ITodoStateManager.ts
+│   ├── ITodoView.ts
+│   └── IViewConfig.ts
+├── models
+│   └── Todo.ts
+├── repositories
+│   ├── ApiTodoRepository.ts
+│   └── InMemoryTodoRepository.ts
+├── services
+│   ├── TodoList.ts
+│   └── TodoStateManager.ts
+└── views
+    └── TodoListView.ts
+```
