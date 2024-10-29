@@ -331,5 +331,177 @@ export class TodoList {
   }
 }
 
-`
 ```
+```TypeScript
+import { ITodo } from '../interfaces/ITodo';
+import { ITodoRepository } from '../interfaces/ITodoRepository';
+import { TodoCommandFactory } from '../factories/TodoCommandFactory';
+import { ICommandExecutor, TodoCommandExecutor } from '../executors/TodoCommandExecutor';
+
+export class TodoList {
+  private commandFactory: TodoCommandFactory;
+  private commandExecutor: ICommandExecutor;
+
+  constructor(
+    repository: ITodoRepository,
+    stateManager: ITodoStateManager
+  ) {
+    this.commandFactory = new TodoCommandFactory(repository, stateManager);
+    this.commandExecutor = new TodoCommandExecutor();
+  }
+
+  async addTodo(title: string): Promise<ITodo> {
+    const command = this.commandFactory.createAddCommand(title);
+    return await this.commandExecutor.execute(command);
+  }
+
+  async removeTodo(id: string): Promise<void> {
+    const command = this.commandFactory.createRemoveCommand(id);
+    return await this.commandExecutor.execute(command);
+  }
+
+  async toggleTodo(id: string): Promise<void> {
+    const command = this.commandFactory.createToggleCommand(id);
+    return await this.commandExecutor.execute(command);
+  }
+
+  async getTodos(): Promise<ITodo[]> {
+    const command = this.commandFactory.createGetAllCommand();
+    return await this.commandExecutor.execute(command);
+  }
+}
+```
+```tsx
+import { ITodo } from '../interfaces/ITodo';
+import { ITodoRepository } from '../interfaces/ITodoRepository';
+import { ITodoStateManager } from '../interfaces/ITodoStateManager';
+import { ICommandExecutor } from '../executors/TodoCommandExecutor';
+import { ITodoCommand } from '../commands/TodoCommands';
+
+// Command Factory를 위한 인터페이스 추가
+export interface ITodoCommandFactory {
+  createAddCommand(title: string): ITodoCommand;
+  createRemoveCommand(id: string): ITodoCommand;
+  createToggleCommand(id: string): ITodoCommand;
+  createGetAllCommand(): ITodoCommand;
+}
+
+export class TodoList {
+  constructor(
+    private commandFactory: ITodoCommandFactory,
+    private commandExecutor: ICommandExecutor
+  ) {}
+
+  async addTodo(title: string): Promise<ITodo> {
+    const command = this.commandFactory.createAddCommand(title);
+    return await this.commandExecutor.execute<ITodo>(command);
+  }
+
+  async removeTodo(id: string): Promise<void> {
+    const command = this.commandFactory.createRemoveCommand(id);
+    return await this.commandExecutor.execute<void>(command);
+  }
+
+  async toggleTodo(id: string): Promise<void> {
+    const command = this.commandFactory.createToggleCommand(id);
+    return await this.commandExecutor.execute<void>(command);
+  }
+
+  async getTodos(): Promise<ITodo[]> {
+    const command = this.commandFactory.createGetAllCommand();
+    return await this.commandExecutor.execute<ITodo[]>(command);
+  }
+}
+
+```
+```tsx
+import { ITodo } from '../interfaces/ITodo';
+import { ICommandExecutor } from '../executors/TodoCommandExecutor';
+import { ITodoCommand } from '../commands/TodoCommands';
+import { ITodoView } from '../interfaces/ITodoView';
+
+// Command Factory 인터페이스
+export interface ITodoCommandFactory {
+  createAddCommand(title: string): ITodoCommand;
+  createRemoveCommand(id: string): ITodoCommand;
+  createToggleCommand(id: string): ITodoCommand;
+  createGetAllCommand(): ITodoCommand;
+}
+
+// TodoList의 결과를 처리하는 인터페이스
+export interface ITodoResultHandler {
+  handleSuccess(message: string): void;
+  handleError(error: Error): void;
+}
+
+export class TodoList {
+  constructor(
+    private commandFactory: ITodoCommandFactory,
+    private commandExecutor: ICommandExecutor,
+    private view: ITodoView,
+    private resultHandler: ITodoResultHandler
+  ) {}
+
+  async addTodo(title: string): Promise<void> {
+    try {
+      const command = this.commandFactory.createAddCommand(title);
+      const todo = await this.commandExecutor.execute<ITodo>(command);
+      await this.refreshView();
+      this.resultHandler.handleSuccess(`Todo "${title}" added successfully`);
+    } catch (error) {
+      this.resultHandler.handleError(error instanceof Error ? error : new Error('Unknown error'));
+    }
+  }
+
+  async removeTodo(id: string): Promise<void> {
+    try {
+      const command = this.commandFactory.createRemoveCommand(id);
+      await this.commandExecutor.execute<void>(command);
+      await this.refreshView();
+      this.resultHandler.handleSuccess('Todo removed successfully');
+    } catch (error) {
+      this.resultHandler.handleError(error instanceof Error ? error : new Error('Unknown error'));
+    }
+  }
+
+  async toggleTodo(id: string): Promise<void> {
+    try {
+      const command = this.commandFactory.createToggleCommand(id);
+      await this.commandExecutor.execute<void>(command);
+      await this.refreshView();
+      this.resultHandler.handleSuccess('Todo status toggled successfully');
+    } catch (error) {
+      this.resultHandler.handleError(error instanceof Error ? error : new Error('Unknown error'));
+    }
+  }
+
+  async refreshView(): Promise<void> {
+    try {
+      const command = this.commandFactory.createGetAllCommand();
+      const todos = await this.commandExecutor.execute<ITodo[]>(command);
+      this.view.displayTodos(todos);
+    } catch (error) {
+      this.resultHandler.handleError(error instanceof Error ? error : new Error('Unknown error'));
+    }
+  }
+}
+```
+
+### 4. 
+
+네, 거기에는 몇 가지 이유가 있습니다:
+점진적 개선 접근법:
+처음부터 완벽한 설계를 제시하면 복잡도가 높아 이해하기 어려울 수 있음
+기본적인 SOLID 원칙 준수 버전부터 시작해서 점진적으로 개선하는 것이 학습과 이해에 더 효과적
+실제 개발 프로세스 반영:
+실제 개발에서도 처음부터 완벽한 설계를 하기보다는 점진적으로 개선하는 경우가 많음
+요구사항이 변경되거나 새로운 패턴의 필요성이 발견될 때마다 리팩토링하는 과정을 보여주는 것이 현실적
+문제점 발견과 개선 과정의 중요성:
+첫 버전의 한계점을 발견하고
+그것을 개선하는 과정을 통해
+왜 더 복잡한 패턴이 필요한지 이해할 수 있음
+복잡도와 이점의 트레이드오프:
+첫 버전도 기본적인 SOLID 원칙은 준수
+하지만 확장성과 유연성을 높이기 위해 점차 패턴을 추가
+이 과정에서 복잡도가 증가하는 트레이드오프를 이해할 수 있음
+즉, 처음부터 Command 패턴과 Factory 패턴을 모두 적용한 복잡한 버전을 제시하기보다, 기본적인 SOLID 원칙을 준수하는 버전부터 시작해서 점진적으로 개선하는 것이 더 교육적이고 실용적이라고 판단했기 때문입니다.
