@@ -49,7 +49,7 @@
 
 </aside>
 
-![image.png](images/image.png)
+<!-- ![image.png](images/image.png) -->
 
 ```
 src
@@ -109,7 +109,7 @@ export class TodoList {
 
 </aside>
 
-![image.png](images/image%201.png)
+<!-- ![image.png](images/image%201.png) -->
 
 ![image.png](images/image%202.png)
 
@@ -197,7 +197,7 @@ export class TodoList {
 
 </aside>
 
-![image.png](images/image%203.png)
+<!-- ![image.png](images/image%203.png) -->
 
 ![image.png](images/image%204.png)
 
@@ -287,133 +287,8 @@ export class TodoList {
 
 ---
 
-## 4.
 
-```tsx
-import { ITodo } from '../interfaces/ITodo';
-import { ITodoRepository } from '../interfaces/ITodoRepository';
-import { ITodoStateManager } from '../interfaces/ITodoStateManager';
-import { 
-  AddTodoCommand, 
-  RemoveTodoCommand, 
-  ToggleTodoCommand, 
-  GetTodosCommand 
-} from '../commands/TodoCommands';
-
-export class TodoList {
-  constructor(
-    private repository: ITodoRepository,
-    private stateManager: ITodoStateManager
-  ) {}
-
-  async addTodo(title: string): Promise<ITodo> {
-    const command = new AddTodoCommand(title, this.repository);
-    return await command.execute();
-  }
-
-  async removeTodo(id: string): Promise<void> {
-    const command = new RemoveTodoCommand(id, this.repository);
-    await command.execute();
-  }
-
-  async toggleTodo(id: string): Promise<void> {
-    const command = new ToggleTodoCommand(
-      id, 
-      this.repository, 
-      this.stateManager
-    );
-    await command.execute();
-  }
-
-  async getTodos(): Promise<ITodo[]> {
-    const command = new GetTodosCommand(this.repository);
-    return await command.execute();
-  }
-}
-
-```
-```TypeScript
-import { ITodo } from '../interfaces/ITodo';
-import { ITodoRepository } from '../interfaces/ITodoRepository';
-import { TodoCommandFactory } from '../factories/TodoCommandFactory';
-import { ICommandExecutor, TodoCommandExecutor } from '../executors/TodoCommandExecutor';
-
-export class TodoList {
-  private commandFactory: TodoCommandFactory;
-  private commandExecutor: ICommandExecutor;
-
-  constructor(
-    repository: ITodoRepository,
-    stateManager: ITodoStateManager
-  ) {
-    this.commandFactory = new TodoCommandFactory(repository, stateManager);
-    this.commandExecutor = new TodoCommandExecutor();
-  }
-
-  async addTodo(title: string): Promise<ITodo> {
-    const command = this.commandFactory.createAddCommand(title);
-    return await this.commandExecutor.execute(command);
-  }
-
-  async removeTodo(id: string): Promise<void> {
-    const command = this.commandFactory.createRemoveCommand(id);
-    return await this.commandExecutor.execute(command);
-  }
-
-  async toggleTodo(id: string): Promise<void> {
-    const command = this.commandFactory.createToggleCommand(id);
-    return await this.commandExecutor.execute(command);
-  }
-
-  async getTodos(): Promise<ITodo[]> {
-    const command = this.commandFactory.createGetAllCommand();
-    return await this.commandExecutor.execute(command);
-  }
-}
-```
-```tsx
-import { ITodo } from '../interfaces/ITodo';
-import { ITodoRepository } from '../interfaces/ITodoRepository';
-import { ITodoStateManager } from '../interfaces/ITodoStateManager';
-import { ICommandExecutor } from '../executors/TodoCommandExecutor';
-import { ITodoCommand } from '../commands/TodoCommands';
-
-// Command Factory를 위한 인터페이스 추가
-export interface ITodoCommandFactory {
-  createAddCommand(title: string): ITodoCommand;
-  createRemoveCommand(id: string): ITodoCommand;
-  createToggleCommand(id: string): ITodoCommand;
-  createGetAllCommand(): ITodoCommand;
-}
-
-export class TodoList {
-  constructor(
-    private commandFactory: ITodoCommandFactory,
-    private commandExecutor: ICommandExecutor
-  ) {}
-
-  async addTodo(title: string): Promise<ITodo> {
-    const command = this.commandFactory.createAddCommand(title);
-    return await this.commandExecutor.execute<ITodo>(command);
-  }
-
-  async removeTodo(id: string): Promise<void> {
-    const command = this.commandFactory.createRemoveCommand(id);
-    return await this.commandExecutor.execute<void>(command);
-  }
-
-  async toggleTodo(id: string): Promise<void> {
-    const command = this.commandFactory.createToggleCommand(id);
-    return await this.commandExecutor.execute<void>(command);
-  }
-
-  async getTodos(): Promise<ITodo[]> {
-    const command = this.commandFactory.createGetAllCommand();
-    return await this.commandExecutor.execute<ITodo[]>(command);
-  }
-}
-
-```
+- n차 구조 분석 및 최종 코드
 ```tsx
 import { ITodo } from '../interfaces/ITodo';
 import { ICommandExecutor } from '../executors/TodoCommandExecutor';
@@ -487,7 +362,7 @@ export class TodoList {
 }
 ```
 
-### 4. 
+## 4. 결론
 
 네, 거기에는 몇 가지 이유가 있습니다:
 점진적 개선 접근법:
@@ -505,3 +380,60 @@ export class TodoList {
 하지만 확장성과 유연성을 높이기 위해 점차 패턴을 추가
 이 과정에서 복잡도가 증가하는 트레이드오프를 이해할 수 있음
 즉, 처음부터 Command 패턴과 Factory 패턴을 모두 적용한 복잡한 버전을 제시하기보다, 기본적인 SOLID 원칙을 준수하는 버전부터 시작해서 점진적으로 개선하는 것이 더 교육적이고 실용적이라고 판단했기 때문입니다.
+
+
+
+```md
+당신은 SOLID 원칙과 디자인 패턴에 정통한 시니어 TypeScript 개발자입니다.
+모든 설계는 다음 4단계로 진행하며, 각 단계마다 코드와 함께 상세한 설명을 제공합니다:
+
+1단계: 기본 구현
+- 가장 단순하지만 작동하는 구현
+- 기본적인 SOLID 원칙 적용
+- 현재 구현의 장단점 분석
+
+2단계: 개선 포인트 분석
+- 현재 구현의 한계점 설명
+- SOLID 원칙 준수 여부 분석
+- 발생 가능한 확장성 문제 제시
+
+3단계: 디자인 패턴 도입
+- 적용할 디자인 패턴 제안
+- 각 패턴의 도입 이유와 장점 설명
+- 복잡도 증가에 대한 트레이드오프 분석
+
+4단계: 최종 구현
+- 선택된 패턴들을 적용한 개선된 구현
+- SOLID 원칙 준수 방식 설명
+- 최종 구현의 장단점 분석
+```
+```md
+Todo 리스트 애플리케이션을 TypeScript로 구현해주세요. 다음 요구사항을 준수해주세요:
+
+1. 기본 요구사항:
+   - Todo 항목을 생성, 삭제, 상태 변경할 수 있어야 함
+   - Todo 목록을 조회할 수 있어야 함
+   - 사용자에게 작업 결과를 알려줄 수 있어야 함
+   - 데이터는 외부 저장소에 저장할 수 있어야 함
+
+2. 설계 원칙:
+   - SOLID 원칙을 준수할 것 (특히 SRP, OCP 중점)
+   - 모든 의존성은 인터페이스를 통해 주입할 것
+   - 기능 확장이 용이하도록 설계할 것
+   - 에러 처리가 가능하도록 설계할 것
+
+3. 고려해야 할 사항:
+   - 저장소는 나중에 변경될 수 있음
+   - UI는 나중에 변경될 수 있음
+   - 새로운 Todo 관련 기능이 추가될 수 있음
+   - 다양한 방식의 에러 처리가 필요할 수 있음
+
+4. 개발 순서:
+   - 먼저 필요한 인터페이스들을 설계
+   - 핵심 기능 구현
+   - 에러 처리 추가
+   - 확장 가능성 고려
+
+각 단계별로 SOLID 원칙을 어떻게 준수했는지 설명해주시고, 
+왜 그러한 설계 결정을 했는지 이유도 함께 설명해주세요.
+```
