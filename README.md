@@ -1,4 +1,4 @@
-# NestJS를 이용한 SRP와 OCP 적용 및 LLM을 활용한 코드 구조 개선 방법 탐구
+# LLM을 활용하여 SRP와 OCP 적용 하여 코드 작성 후 코드 구조 개선 방법 탐구
 
 ## **1. 주제**
 
@@ -162,7 +162,7 @@ export class TodoList {
 
 ---
 
-1. **`TodoFactory` 사용으로 객체 생성 분리**
+2. **`TodoFactory` 사용으로 객체 생성 분리**
     
     **변화**
     
@@ -176,7 +176,7 @@ export class TodoList {
 
 ---
 
-1. **비즈니스 로직과 저장소 로직 분리**
+3. **비즈니스 로직과 저장소 로직 분리**
     
     **변화**
     
@@ -256,7 +256,7 @@ export class TodoList {
 
 ---
 
-1. **의존성 주입 (Dependency Injection)으로 유연성 강화**
+2. **의존성 주입 (Dependency Injection)으로 유연성 강화**
     
     **변화**
     
@@ -270,7 +270,7 @@ export class TodoList {
 
 ---
 
-1. **상태 변경 로직의 복잡성 처리**
+3. **상태 변경 로직의 복잡성 처리**
     
     **변화**
     
