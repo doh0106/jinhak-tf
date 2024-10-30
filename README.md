@@ -1,12 +1,12 @@
-# NestJS를 이용한 SRP와 OCP 적용 및 GPT를 활용한 코드 구조 개선 방법 탐구
+# NestJS를 이용한 SRP와 OCP 적용 및 LLM을 활용한 코드 구조 개선 방법 탐구
 
 ## **1. 주제**
 
-소프트웨어 개발에서 **단일 책임 원칙(SRP)**과 **개방-폐쇄 원칙(OCP)**은 유지보수성과 확장성을 높이는 핵심 원칙입니다. 이번 발표에서는 **NestJS**를 이용한 백엔드 개발에서 이 두 가지 원칙을 어떻게 적용할 수 있는지, 그리고 **GPT**를 활용하여 코드 모듈을 작성하고 구조를 개선하는 방법을 탐구해보겠습니다.
+소프트웨어 개발에서 **단일 책임 원칙**과 **개방-폐쇄 원칙**은 유지보수성과 확장성을 높이는 핵심 원칙입니다. 이번 발표에서는 **NestJS**를 이용한 백엔드 개발에서 이 두 가지 원칙을 어떻게 적용할 수 있는지, 그리고 **LLM**을 활용하여 코드 모듈을 작성하고 구조를 개선하는 방법을 탐구해보겠습니다.
 
 ---
 
-## 2. **프로젝트 개요**
+## 2. **작성 코드 개요**
 
 - **주제**
     - 할 일 관리(Todo) API 개발
@@ -32,25 +32,6 @@
     - 커스터마이즈 가능한 출력 포맷
     - 헤더
     - Todo 아이템 형식 ([X] 할일제목 (ID: xxx))
-
----
-
-## 3. **코드 작성 및 분석 과정**
-
-> ***Cursor를 활용하여 코딩 작성 및 피드백 과정 반복 적용***
-> 
-
-### 1차 코드 생성
-
-<aside>
-💡
-
-**(SRP, OCP)을 적용해서 이를 준수하는 Todolist를 구현한 코드 모듈을 작성해줘!** 
-
-</aside>
-
-<!-- ![image.png](images/image.png) -->
-
 ```
 src
 ├── index.ts
@@ -63,6 +44,32 @@ src
 └── views
     └── TodoListView.ts
 ```
+- 프로젝트 구조
+  - index.ts: 애플리케이션의 시작점에서 필요한 모듈과 클래스를 가져옵니다.
+  - ITodo.ts: Todo 객체의 구조를 정의합니다.
+  - Todo.ts: Todo 객체의 클래스와 관련된 메서드를 정의합니다.
+  - TodoList.ts: 여러 할 일을 관리하고 처리하는 서비스 계층입니다.
+  - TodoListView.ts: 할 일 목록을 화면에 렌더링하고, 사용자와의 상호작용을 처리합니다.
+
+---
+
+## 3. **코드 작성 및 분석 과정**
+
+### 코드 작성 및 분석 방법
+1. cursor를 활용하여 코드 작성
+2. cursor를 활용하여 원칙 분석 및 코드 피드백
+3. 수정이 없을 때 까지, 1-2 과정 반복
+> 가장 많은 요소를 사용하는 service인 `TodoList`를 주로 분석함
+
+### 1차 코드 생성
+
+<aside>
+💡 (SRP, OCP)을 적용해서 이를 준수하는 Todolist를 구현한 코드 모듈을 작성해줘!
+</aside>
+
+<!-- ![image.png](images/image.png) -->
+
+
 
 ```tsx
 // src.services.TodoList.ts
@@ -94,19 +101,12 @@ export class TodoList {
   }
 }
 ```
-- index.ts: 애플리케이션의 시작점에서 필요한 모듈과 클래스를 가져옵니다.
-- ITodo.ts: Todo 객체의 구조를 정의합니다.
-- Todo.ts: Todo 객체의 클래스와 관련된 메서드를 정의합니다.
-- TodoList.ts: 여러 할 일을 관리하고 처리하는 서비스 계층입니다.
-- TodoListView.ts: 할 일 목록을 화면에 렌더링하고, 사용자와의 상호작용을 처리합니다.
+
 
 ### 1차 피드백
 
 <aside>
-💡
-
-다시 한 번 원칙들을 모두 잘 지키고 있는지 확인해봐바
-
+💡다시 한 번 원칙들을 모두 잘 지키고 있는지 확인해봐바
 </aside>
 
 <!-- ![image.png](images/image%201.png) -->
@@ -117,7 +117,7 @@ export class TodoList {
 // src.services.TodoList.ts
 import { ITodo } from '../interfaces/ITodo';
 import { ITodoRepository } from '../interfaces/ITodoRepository';
-import { TodoFactory } from '../factories/TodoFactory';  // ✅ TodoFactory import
+import { TodoFactory } from '../factories/TodoFactory';  // ✅ TodoFactory 
 
 // SRP: ✅ Todo 비즈니스 로직 처리라는 단일 책임을 가짐
 // OCP: ✅ 의존성 주입을 통해 저장소를 유연하게 교체 가능
@@ -191,9 +191,7 @@ export class TodoList {
 ### 2차 피드백
 
 <aside>
-💡
-
-**이제 이 프로젝트에서는 더 SRP나 OCP어기는 거 없어? 한 번 더 검토하고 있다면 수정해줘**
+💡 **이제 이 프로젝트에서는 더 SRP나 OCP어기는 거 없어? 한 번 더 검토하고 있다면 수정해줘**
 
 </aside>
 
@@ -277,7 +275,7 @@ export class TodoList {
     **변화**
     
     - **기존 코드**: 상태 변경이 단순해서 `todo.completed = !todo.completed` 코드로 처리했습니다.
-    - **변경된 코드**: 상태 관리의 책임을 **`stateManager`*가 담당하여 `toggleState(todo)`로 변경했습니다.
+    - **변경된 코드**: 상태 관리의 책임을 `stateManager`가 담당하여 `toggleState(todo)`로 변경했습니다.
     
     **이유**
     
@@ -288,7 +286,7 @@ export class TodoList {
 ---
 
 
-- n차 구조 분석 및 최종 코드
+### n차 피드백 후 최종 코드
 ```tsx
 import { ITodo } from '../interfaces/ITodo';
 import { ICommandExecutor } from '../executors/TodoCommandExecutor';
@@ -362,11 +360,25 @@ export class TodoList {
 }
 ```
 
-## 4. 결론
+## 4. 결론 및 의문점
 
-#### Q. 왜 처음부터 저렇게 코딩해주지 않음?
+### 결론
+SOLID 원칙을 적용한 코드 구조 분석에서, SRP와 OCP는 서로 다른 특성을 보입니다. SRP는 "책임"이라는 개념이 상황과 맥락에 따라 다르게 해석될 수 있어 매우 **주관적**인 반면, OCP는 "변경 가능성"이라는 **비교적 객관적**인 기준으로 판단할 수 있습니다. 이러한 차이로 인해 코드 구조 분석 시 다음과 같은 접근이 필요합니다
+- SRP 분석 기준
+  - 변경의 빈도와 패턴
+  - 비즈니스 도메인의 자연스러운 경계
+  - 팀의 조직 구조와 책임 범위
+- OCP 분석 기준
+  - 과거 변경 이력 분석
+  - 명확한 확장 포인트 식별
+  - 기술적 결합도 평가
 
-#### A. 네, 거기에는 몇 가지 이유가 있습니다:
+---
+###  의문점1. GPT는 왜 처음부터 저렇게(모든 SRP 나눠서) 코딩해주지 않고 여러번에 걸쳐가면서 심화시켜서 코드 작성을 하는지?
+
+**LLM 답변**
+```text
+네, 거기에는 몇 가지 이유가 있습니다:
 
 점진적 개선 접근법:
 - 처음부터 완벽한 설계를 제시하면 복잡도가 높아 이해하기 어려울 수 있음
@@ -385,10 +397,11 @@ export class TodoList {
 - 이 과정에서 복잡도가 증가하는 트레이드오프를 이해할 수 있음
 
 즉, 처음부터 Command 패턴과 Factory 패턴을 모두 적용한 복잡한 버전을 제시하기보다, 기본적인 SOLID 원칙을 준수하는 버전부터 시작해서 점진적으로 개선하는 것이 더 교육적이고 실용적이라고 판단했기 때문입니다.
+```
 
 
 
-#### 처음부터 저렇게 시키려면 어떤 프롬프트?
+### 의문점2. 처음부터 완벽하게 SRP 규칙 준수하게 작성하려면 어떤 프롬프트?
 
 ```md
 당신은 SOLID 원칙과 디자인 패턴에 정통한 시니어 TypeScript 개발자입니다.
@@ -444,31 +457,26 @@ Todo 리스트 애플리케이션을 TypeScript로 구현해주세요. 다음 �
 각 단계별로 SOLID 원칙을 어떻게 준수했는지 설명해주시고, 
 왜 그러한 설계 결정을 했는지 이유도 함께 설명해주세요.
 ```
+> 이렇게 작성해도 한번만에 모든 SRP를 준수하는 코드는 작성 안되었는데 무조건 여러번 수정하는 게 답인지? 혹은 그러한 프롬프트 작성해본 적 있는지?
 
-```text
-src
-├── config
-│   └── ViewConfigFactory.ts
-├── factories
-│   └── TodoFactory.ts
-├── formatters
-│   └── TodoFormatter.ts
-├── index.ts
-├── interfaces
-│   ├── ITodo.ts
-│   ├── ITodoFormatter.ts
-│   ├── ITodoRepository.ts
-│   ├── ITodoStateManager.ts
-│   ├── ITodoView.ts
-│   └── IViewConfig.ts
-├── models
-│   └── Todo.ts
-├── repositories
-│   ├── ApiTodoRepository.ts
-│   └── InMemoryTodoRepository.ts
-├── services
-│   ├── TodoList.ts
-│   └── TodoStateManager.ts
-└── views
-    └── TodoListView.ts
-```
+
+### 의문점3. 복잡도와 트레이드 오프 관련 SOLID 원칙별 균형점 분석
+1. 단일 책임 원칙 (SRP)
+  - **특징**: 가장 주관적이고 균형점 찾기 어려운 원칙
+  - **균형점 고려사항**:
+    - 너무 작게 분리: 클래스/파일 폭발적 증가, 복잡도 상승
+    - 너무 크게 유지: 유지보수 어려움, 코드 이해도 저하
+  - **실용적 접근**:
+    - 비즈니스 도메인 맥락에 따라 "책임" 정의
+    - 변경의 이유가 명확히 다른 경우만 분리
+    - 팀의 규모와 역량에 맞춘 분리 수준 결정
+
+2. 개방-폐쇄 원칙 (OCP)
+  - **특징**: 비교적 명확한 균형점 존재
+  - **균형점 고려사항**:
+    - 확장 가능성이 높은 부분만 추상화
+    - 현재 필요하지 않은 추상화는 지양
+  - **실용적 접근**:
+    - 실제 변경/확장이 예상되는 부분만 적용
+    - 비즈니스 요구사항 변경 패턴 분석 후 적용
+> 실제 프로젝트를 할 때에도 미리 설정해두고(특히 SRP?) 프로젝트 진행하는지? 아니면 초기에는 기초적인 것만 분리 후, 요구사항에 따라 바꿔가는지?
