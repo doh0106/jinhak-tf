@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
-import { ChatModule } from './chat/chat.module';
+import { NotificationModule } from './notification/notification.module';
+import { ConfigModule } from './config/config.module';
 
-// DIP 분석:
-// 1. @Module() 데코레이터는 Nest.js의 핵심 DI 컨테이너 구성 요소입니다.
-// 2. imports를 통해 모듈 간의 의존성을 선언적으로 관리하며,
-//    이는 모듈 레벨에서의 추상화와 의존성 관리를 가능하게 합니다.
-// 3. Nest.js의 모듈 시스템은 DIP를 프레임워크 레벨에서 구현한 좋은 예시입니다.
+// @Module 데코레이터를 통한 모듈 정의
+// DI 컨테이너의 최상위 모듈로서 전체 의존성 그래프의 진입점 역할
 @Module({
-  imports: [ChatModule],
+  imports: [
+    ConfigModule.forRoot(), // 동적 모듈을 통한 설정 주입 - 런타임에 설정값 동적 주입 가능
+    NotificationModule     // 알림 기능 모듈 주입 - 느슨한 결합을 통한 모듈성 확보
+  ],
 })
 export class AppModule {} 
